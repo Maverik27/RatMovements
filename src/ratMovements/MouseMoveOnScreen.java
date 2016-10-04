@@ -7,24 +7,17 @@ import javax.swing.*;
 
 public class MouseMoveOnScreen {
 
-	public boolean start = true;
-	long stopped; // time of service has been stopped
-	long elapsedTime; // elapsed time
-	long waitTimeToStart = 60000; // wait time we need to attend for restart
-									// service
+	private boolean start;
+	private long stopped; // time of service has been stopped
+	private long elapsedTime; // elapsed time
+	private long waitTimeToStart = 60000; // wait time to attend to restart
+											// service
+	private long mSec = 1000;// second passed between each mouse movement
+	private Robot robot;
 
-	// second passed between each mouse movement
-	long mSec = 1000;
-	long sec = TimeUnit.MILLISECONDS.toSeconds(mSec);
-
-	Robot robot;
-	JLabel label;
-
-	MouseMoveOnScreen() throws AWTException {
+	public MouseMoveOnScreen() throws AWTException {
 
 		robot = new Robot();
-		label = new JLabel();
-
 		ActionListener al = new ActionListener() {
 
 			Point lastPoint = MouseInfo.getPointerInfo().getLocation();
@@ -37,7 +30,9 @@ public class MouseMoveOnScreen {
 
 				if (!p.equals(lastPoint)) {
 
-					stopAutoMouse();
+					if (isStart()) {
+						stopAutoMouse();
+					}
 					stopped = System.currentTimeMillis();
 
 				} else {
@@ -56,17 +51,13 @@ public class MouseMoveOnScreen {
 
 								robot.mouseMove(1, 1);
 								Thread.sleep(mSec);
-								
-								// verifica se il mouse si sta muovendo fuori da
-								// un preciso rettangolo di pixel
-								p = MouseInfo.getPointerInfo().getLocation();
 
-								if (!(p.x == 1 && (p.y == 1 || p.y == 2))) {
+								// is pointer inside a specific pixel rectangle?
+								if (isMouseMoved(MouseInfo.getPointerInfo().getLocation())) {
 									break;
 								}
 								robot.mouseMove(1, 2);
 								Thread.sleep(mSec);
-
 							}
 						}
 					} catch (InterruptedException e1) {
@@ -80,49 +71,27 @@ public class MouseMoveOnScreen {
 		timer.start();
 	}
 
-	public boolean isStart() {
+	private boolean isMouseMoved(Point p) {
+		if (!(p.x == 1 && (p.y == 1 || p.y == 2))) {
+			return true;
+		}
+		return false;
+	}
+
+	private void setStartFalse() {
+		start = false;
+	}
+
+	private boolean isStart() {
 		return start;
 	}
 
-	public void setStartTrue() {
+	private void setStartTrue() {
 		start = true;
 	}
 
-	public void stopAutoMouse() {
+	private void stopAutoMouse() {
 		start = false;
 		System.out.println("Detected mouse movement! Service Stopped!");
-	}
-
-	public static void main(String[] args) throws Exception {
-		Runnable r = new Runnable() {
-			@Override
-			public void run() {
-
-				// get the screen size as a java dimension
-				JFrame f = new JFrame("RatMovements");
-				Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-				ImageIcon ratman = new ImageIcon(this.getClass().getResource("/ratMovements/ratman.jpg"));
-				
-				int height = ratman.getIconHeight() + 50;
-				int width = ratman.getIconWidth() + 50;
-
-				// set the jframe height and width
-				f.setPreferredSize(new Dimension(width, height));
-				f.setLayout(new FlowLayout());
-				f.setContentPane(new JLabel(ratman));
-				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-				f.pack();
-				f.setLocationByPlatform(true);
-				f.setVisible(true);
-				
-				try {
-					MouseMoveOnScreen mmos = new MouseMoveOnScreen();
-				} catch (AWTException ex) {
-					ex.printStackTrace();
-				}
-			}
-		};
-		SwingUtilities.invokeLater(r);
 	}
 }
