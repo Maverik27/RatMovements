@@ -8,11 +8,12 @@ import javax.swing.*;
 public class MouseMoveOnScreen {
 
 	private boolean start;
-	private long stopped; // time of service has been stopped
+	private long stopped = System.currentTimeMillis(); // time of service has been stopped
 	private long elapsedTime; // elapsed time
 	private long waitTimeToStart = 60000; // wait time to attend to restart
 											// service
 	private long mSec = 1000;// second passed between each mouse movement
+	private int miniWaits = 10; // number of smaller waits within a bigger wait
 	private Robot robot;
 
 	public MouseMoveOnScreen() throws AWTException {
@@ -48,16 +49,17 @@ public class MouseMoveOnScreen {
 									TimeUnit.MILLISECONDS.toSeconds(elapsedTime) + " second passed! Service restored!");
 
 							while (isStart()) {
-
-								robot.mouseMove(1, 1);
-								Thread.sleep(mSec);
-
-								// is pointer inside a specific pixel rectangle?
-								if (isMouseMoved(MouseInfo.getPointerInfo().getLocation())) {
+								p.y++;
+								robot.mouseMove(p.x, p.y);
+								
+								if(splitWait(p))
 									break;
-								}
-								robot.mouseMove(1, 2);
-								Thread.sleep(mSec);
+								
+								p.y--;
+								robot.mouseMove(p.x, p.y);
+								
+								if(splitWait(p))
+									break;
 							}
 						}
 					} catch (InterruptedException e1) {
@@ -70,12 +72,24 @@ public class MouseMoveOnScreen {
 		Timer timer = new Timer(30, al);
 		timer.start();
 	}
-
-	private boolean isMouseMoved(Point p) {
-		if (!(p.x == 1 && (p.y == 1 || p.y == 2))) {
-			return true;
+	
+	private boolean splitWait(Point p) throws InterruptedException {
+		for(int i = 0; i < miniWaits; i++) {
+			Thread.sleep(mSec / miniWaits);
+			
+			// is pointer inside a specific pixel rectangle?
+			if(isMouseMoved(MouseInfo.getPointerInfo().getLocation(), p))
+				return true;
 		}
+		
 		return false;
+	}
+
+	private boolean isMouseMoved(Point p,Point pp) {
+		if (p.x == pp.x && p.y == pp.y)
+			return false;
+		
+		return true;
 	}
 
 	private void setStartFalse() {
