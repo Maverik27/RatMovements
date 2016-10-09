@@ -47,15 +47,17 @@ public class MouseMoveOnScreen {
 							setStartTrue();
 							System.out.println(
 									TimeUnit.MILLISECONDS.toSeconds(elapsedTime) + " second passed! Service restored!");
+							
+							int inc = (MouseInfo.getPointerInfo().getLocation().y > 0 ? -1 : 1);
 
 							while (isStart()) {
-								p.y++;
+								p.y += inc;
 								robot.mouseMove(p.x, p.y);
 								
 								if(splitWait(p))
 									break;
 								
-								p.y--;
+								p.y -= inc;
 								robot.mouseMove(p.x, p.y);
 								
 								if(splitWait(p))
