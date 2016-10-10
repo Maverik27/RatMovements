@@ -18,6 +18,7 @@ public class RatMain {
 				// get the screen size as a java dimension
 				JFrame f = new JFrame("RatMovements");
 				ImageIcon ratman = new ImageIcon(this.getClass().getResource("/ratMovements/ratman.jpg"));
+				ImageIcon icon = new ImageIcon(this.getClass().getResource("/ratMovements/mouse.png"));
 
 				int height = ratman.getIconHeight() + 50;
 				int width = ratman.getIconWidth() + 50;
@@ -26,6 +27,7 @@ public class RatMain {
 				f.setPreferredSize(new Dimension(width, height));
 				f.setLayout(new FlowLayout());
 				f.setContentPane(new JLabel(ratman));
+				f.setIconImage(icon.getImage());
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 				f.pack();
