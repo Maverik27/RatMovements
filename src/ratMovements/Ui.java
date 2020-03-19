@@ -22,7 +22,7 @@ public class Ui {
         Image scaledBackground = getScaledImage(background.getImage(), 200, 200);
         background = new ImageIcon(scaledBackground);
         int height = (int) (background.getIconHeight() + (background.getIconHeight() * 0.2));
-        int width = (int) (background.getIconWidth() + (background.getIconHeight() * 0.5));
+        int width = (int) (background.getIconWidth() + (background.getIconHeight() * 0.8));
 
         f.setPreferredSize(new Dimension(width, height));
 
