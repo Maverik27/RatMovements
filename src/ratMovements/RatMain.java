@@ -1,46 +1,35 @@
 package ratMovements;
 
-import java.awt.AWTException;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
+import java.util.Arrays;
 
 public class RatMain {
-	public static void main(String[] args) throws Exception {
-		Runnable r = new Runnable() {
-			@Override
-			public void run() {
 
-				// get the screen size as a java dimension
-				JFrame f = new JFrame("RatMovements");
-				ImageIcon ratman = new ImageIcon(this.getClass().getResource("/ratMovements/ratman.jpg"));
-				ImageIcon icon = new ImageIcon(this.getClass().getResource("/ratMovements/mouse.png"));
+    static final Logger log = Logger.getLogger(RatMain.class.getName());
 
-				int height = ratman.getIconHeight() + 50;
-				int width = ratman.getIconWidth() + 50;
+    public static void main(String[] args) {
 
-				// set the jframe height and width
-				f.setPreferredSize(new Dimension(width, height));
-				f.setLayout(new FlowLayout());
-				f.setContentPane(new JLabel(ratman));
-				f.setIconImage(icon.getImage());
-				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        File log4jfile = new File("src/resources/properties/log4j.properties");
+        PropertyConfigurator.configure(log4jfile.getAbsolutePath());
 
-				f.pack();
-				f.setLocationByPlatform(true);
-				f.setVisible(true);
+        Runnable r = RatMain::run;
+        SwingUtilities.invokeLater(r);
+    }
 
-				try {
-					MouseMoveOnScreen mmos = new MouseMoveOnScreen();
-				} catch (AWTException ex) {
-					ex.printStackTrace();
-				}
-			}
-		};
-		SwingUtilities.invokeLater(r);
-	}
+    private static void run() {
+        log.info("Rat Movements started!");
+        Ui ui = new Ui();
+        ui.generateUI();
+
+        try {
+            MouseMoveOnScreen mmos = new MouseMoveOnScreen();
+        } catch (AWTException ex) {
+            log.error("AWTException! -->" + Arrays.toString(ex.getStackTrace()));
+        }
+    }
 }
