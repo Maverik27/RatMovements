@@ -14,8 +14,9 @@ public class RatMain {
 
     public static void main(String[] args) {
 
-        File log4jfile = new File("src/resources/properties/log4j.properties");
+        File log4jfile = new File("src/resources/log4j.properties");
         PropertyConfigurator.configure(log4jfile.getAbsolutePath());
+        PropertyConfigurator.configure(log4jfile.getPath());
 
         Runnable r = RatMain::run;
         SwingUtilities.invokeLater(r);
