@@ -24,11 +24,13 @@ public class RatMain {
 
     private static void run() {
         log.info("Rat Movements started!");
-        Ui ui = new Ui();
-        ui.generateUI();
+
+        TrayIconRM tray = new TrayIconRM();
+        tray.createAndShowGUI();
 
         try {
             //MouseMoveOnScreen mmos = new MouseMoveOnScreen();
+            Ui.getInstance();
             MouseMoveOnScreen.getInstance();
         } catch (AWTException ex) {
             log.error("AWTException! -->" + Arrays.toString(ex.getStackTrace()));
