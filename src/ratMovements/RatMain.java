@@ -28,7 +28,8 @@ public class RatMain {
         ui.generateUI();
 
         try {
-            MouseMoveOnScreen mmos = new MouseMoveOnScreen();
+            //MouseMoveOnScreen mmos = new MouseMoveOnScreen();
+            MouseMoveOnScreen.getInstance();
         } catch (AWTException ex) {
             log.error("AWTException! -->" + Arrays.toString(ex.getStackTrace()));
         }

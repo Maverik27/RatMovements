@@ -17,9 +17,21 @@ public class MouseMoveOnScreen {
     private long elapsedTime; // elapsed time
     private long waitTimeToStart = 60000; // wait time to attend to restart service
     //private long waitTimeToStart = 5000; // wait time to attend to restart service TEST MODE ONLY!!
-    private long mSec = 1000;// second passed between each mouse movement
+    private long mSec = 10;// second passed between each mouse movement
     private int miniWaits = 10; // number of smaller waits within a bigger wait
     private Robot robot;
+
+    // static variable single_instance of type MouseMoveOnScreen
+    private static MouseMoveOnScreen single_instance = null;
+
+    // static method to create instance of Singleton class
+    public static MouseMoveOnScreen getInstance() throws AWTException {
+        if (single_instance == null)
+            single_instance = new MouseMoveOnScreen();
+
+        return single_instance;
+    }
+
 
     public MouseMoveOnScreen() throws AWTException {
 
@@ -44,15 +56,17 @@ public class MouseMoveOnScreen {
                     stopped = System.currentTimeMillis();
 
                 } else {
-                    try {
-                        elapsedTime = System.currentTimeMillis() - stopped;
+                    //Se il mouse è fermo nello stesso punto verifico da quanto tempo è fermo
+                    elapsedTime = System.currentTimeMillis() - stopped;
 
-                        if (elapsedTime > waitTimeToStart) {
+                    //Se è fermo da più tempo di quello impostato per far partire l'automazione, faccio ripartire
+                    if (elapsedTime > waitTimeToStart) {
 
-                            setStartTrue();
-                            int inc = (MouseInfo.getPointerInfo().getLocation().y > 0 ? -1 : 1);
+                        setStartTrue();
+                        int inc = (MouseInfo.getPointerInfo().getLocation().y > 0 ? -1 : 1);
 
-                            while (isStart()) {
+                        while (isStart()) {
+                            try {
                                 p.y += inc;
                                 robot.mouseMove(p.x, p.y);
 
@@ -61,12 +75,12 @@ public class MouseMoveOnScreen {
                                 p.y -= inc;
                                 robot.mouseMove(p.x, p.y);
 
-                                if (splitWait(p))
-                                    break;
+                                if (splitWait(p)) break;
+
+                            } catch (InterruptedException ex) {
+                               log.error(ex.getStackTrace());
                             }
                         }
-                    } catch (InterruptedException e1) {
-                        log.error("InterruptedException! -->" + Arrays.toString(e1.getStackTrace()));
                     }
                 }
                 lastPoint = p;
@@ -85,7 +99,6 @@ public class MouseMoveOnScreen {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -93,7 +106,7 @@ public class MouseMoveOnScreen {
         if (p.x == pp.x && p.y == pp.y) {
             return false;
         } else {
-            log.info("Mouse Moved! Old Position --> " + p.getLocation() + " New Position --> " + MouseInfo.getPointerInfo().getLocation());
+            log.info("Mouse Moved! Old Position --> [" + p.x + "-" + p.y + "] New Position --> [" + pp.x + "-" + pp.y + "]");
             return true;
         }
     }
@@ -104,7 +117,7 @@ public class MouseMoveOnScreen {
 
     private void setStartTrue() {
         start = true;
-        log.info(TimeUnit.MILLISECONDS.toSeconds(elapsedTime) + " second passed! Service Restarted!");
+        log.info(TimeUnit.MILLISECONDS.toSeconds(elapsedTime) + " seconds passed! Service Restarted!");
         log.info("Start variable setted to True -> " + start);
     }
 
@@ -112,5 +125,14 @@ public class MouseMoveOnScreen {
         start = false;
         log.info("Detected mouse movement! Service Stopped!");
         log.info("Start variable setted to False -> " + start);
+    }
+
+    public long getWaitTimeToStart() {
+        return waitTimeToStart;
+    }
+
+    public void setWaitTimeToStart(long waitTimeToStart) {
+        this.waitTimeToStart = waitTimeToStart;
+        log.info("New wait time to start setted: " + TimeUnit.MILLISECONDS.toMinutes(waitTimeToStart) + " Minute(s)");
     }
 }
