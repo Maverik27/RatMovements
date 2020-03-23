@@ -2,11 +2,11 @@ package ratMovements;
 
 import org.apache.log4j.Logger;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.concurrent.TimeUnit;
 
 public class MouseMoveOnScreen {
 
@@ -16,8 +16,8 @@ public class MouseMoveOnScreen {
     private boolean serviceStarted = true;
     private long stopped = System.currentTimeMillis(); // time of service has been stopped
     private long elapsedTime; // elapsed time
-    //private long waitTimeToStart = 60000; // wait time to attend to restart service
-    private long waitTimeToStart = 5000; // wait time to attend to restart service TEST MODE ONLY!!
+    private long waitTimeToStart = 60000; // wait time to attend to restart service
+    //private long waitTimeToStart = 5000; // wait time to attend to restart service TEST MODE ONLY!!
     private long mSec = 10;// second passed between each mouse movement
     private int miniWaits = 10; // number of smaller waits within a bigger wait
     private Robot robot;
@@ -32,7 +32,6 @@ public class MouseMoveOnScreen {
 
         return single_instance;
     }
-
 
     public MouseMoveOnScreen() throws AWTException {
 
@@ -121,13 +120,11 @@ public class MouseMoveOnScreen {
     private void setStartTrue() {
         start = true;
         log.info(TimeUnit.MILLISECONDS.toSeconds(elapsedTime) + " seconds passed! Service Restarted!");
-        log.info("Start variable setted to True -> " + start);
     }
 
     private void stopAutoMouse() {
         start = false;
         log.info("Detected mouse movement! Service Stopped!");
-        log.info("Start variable setted to False -> " + start);
     }
 
     public long getWaitTimeToStart() {

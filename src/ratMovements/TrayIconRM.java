@@ -4,10 +4,7 @@ import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -18,6 +15,7 @@ public class TrayIconRM {
     private TrayIcon trayIcon;
     private TrayIcon trayIconPaused;
     private SystemTray tray;
+    private JPopupMenu popup;
 
     public void createAndShowGUI() throws AWTException {
         //Check the SystemTray support
@@ -37,7 +35,7 @@ public class TrayIconRM {
         tray = SystemTray.getSystemTray();
 
         // Create a popup menu components
-        JPopupMenu popup = generateMenu();
+        popup = generateMenu();
 
         try {
             tray.add(trayIcon);
@@ -95,6 +93,7 @@ public class TrayIconRM {
         JCheckBoxMenuItem _10Minutes = new JCheckBoxMenuItem("10 Minutes");
         JCheckBoxMenuItem pauseItem = new JCheckBoxMenuItem("Pause Service");
         JMenuItem openLogFileMenuItem = new JMenuItem("Open Log File");
+        JMenuItem closeMenuItem = new JMenuItem("Close Menu");
         JMenuItem exitItem = new JMenuItem("Exit");
 
         menuWaitTime.add(_1Minute);
@@ -105,8 +104,16 @@ public class TrayIconRM {
         menu.add(menuWaitTime);
         menu.add(pauseItem);
         menu.add(openLogFileMenuItem);
+        menu.add(closeMenuItem);
         menu.addSeparator();
         menu.add(exitItem);
+
+        closeMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                popup.setVisible(false);
+            }
+        });
 
         pauseItem.addActionListener(new ActionListener() {
             @Override
