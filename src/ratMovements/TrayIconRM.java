@@ -1,5 +1,6 @@
 package ratMovements;
 
+import com.sun.deploy.util.WinRegistry;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -58,7 +59,7 @@ public class TrayIconRM {
 
             private void maybeShowPopup(MouseEvent e) {
                 if (e.isPopupTrigger()) {
-                    popup.setLocation(e.getX() - 120, e.getY() - 130);
+                    popup.setLocation(e.getX() - 200, e.getY() - 130);
                     popup.setInvoker(popup);
                     popup.setVisible(true);
                 }
@@ -92,6 +93,8 @@ public class TrayIconRM {
         JCheckBoxMenuItem _5Minutes = new JCheckBoxMenuItem("5 Minutes");
         JCheckBoxMenuItem _10Minutes = new JCheckBoxMenuItem("10 Minutes");
         JCheckBoxMenuItem pauseItem = new JCheckBoxMenuItem("Pause Service");
+        JCheckBoxMenuItem runOnStartupItem = new JCheckBoxMenuItem("Start automatically on startup");
+        runOnStartupItem.setState(isFileExistInStartUpFolder());
         JMenuItem openLogFileMenuItem = new JMenuItem("Open Log File");
         JMenuItem closeMenuItem = new JMenuItem("Close Menu");
         JMenuItem exitItem = new JMenuItem("Exit");
@@ -103,10 +106,45 @@ public class TrayIconRM {
 
         menu.add(menuWaitTime);
         menu.add(pauseItem);
+        menu.add(runOnStartupItem);
         menu.add(openLogFileMenuItem);
         menu.add(closeMenuItem);
         menu.addSeparator();
         menu.add(exitItem);
+
+        runOnStartupItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                //String startupAllUserFolder = "\"C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp\\\"";
+                String filePath = System.getProperty("user.home");
+                String startupUserFolder = "\"" + filePath + "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\\"";
+
+                String shortCut = "\"C:\\Program Files (x86)\\Rat Movements 2.0\\ShortCut Rat Movements 2.0.vbs\"";
+                String delFile = "\"" + filePath + "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ShortCut Rat Movements 2.0.vbs\"";
+                Runtime r = Runtime.getRuntime();
+
+                try {
+                    if (runOnStartupItem.isSelected()) {
+                        runOnStartupItem.setState(true);
+
+                        String xcopy = "cmd /c xcopy /Y " + shortCut + " " + startupUserFolder;
+                        log.info("XCOPY: -> " + xcopy);
+                        r.exec(xcopy);
+                        log.info("Rat Movements 2.0 added to startup folder by User");
+                    } else {
+                        runOnStartupItem.setState(false);
+
+                        String del = "cmd /c del " + delFile;
+                        log.info("DEL: -> " + del);
+                        r.exec(del);
+                        log.info("Rat Movements 2.0 removed from startup folder by User");
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
 
         closeMenuItem.addActionListener(new ActionListener() {
             @Override
@@ -119,19 +157,16 @@ public class TrayIconRM {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-
                     if (pauseItem.isSelected()) {
-                        pauseItem.setState(true);
                         MouseMoveOnScreen.getInstance().setServiceStarted(false);
                         tray.remove(trayIcon);
                         tray.add(trayIconPaused);
-                        log.info("Service stopped by User -> " + MouseMoveOnScreen.getInstance().isServiceStarted());
+                        log.info("Service stopped by User");
                     } else {
-                        pauseItem.setState(false);
                         MouseMoveOnScreen.getInstance().setServiceStarted(true);
-                        tray.add(trayIcon);
                         tray.remove(trayIconPaused);
-                        log.info("Service resumed by User -> " + MouseMoveOnScreen.getInstance().isServiceStarted());
+                        tray.add(trayIcon);
+                        log.info("Service resumed by User");
                     }
                 } catch (AWTException ex) {
                     log.error("Error stopping/resuming service by user input! -> " + ex.getStackTrace());
@@ -186,8 +221,12 @@ public class TrayIconRM {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                String filePath = System.getProperty("user.home") + "/RatMovements/Logs/RatMovements.log";
-                File f = new File(filePath);
+                //String filePath = System.getProperty("user.home") + "/RatMovements/Logs/RatMovements.log";
+                String filePathInstaller = "C:/Program Files (x86)/Rat Movements 2.0/Logs/RatMovements.log";
+
+                //File f = new File(filePath);
+                File f = new File(filePathInstaller);
+
                 try {
                     log.info("Opening log file...");
                     Desktop.getDesktop().open(f);
@@ -205,6 +244,23 @@ public class TrayIconRM {
         });
 
         return menu;
+    }
+
+    private boolean isFileExistInStartUpFolder() {
+
+        String filePath = System.getProperty("user.home");
+        String startupFilePath = filePath + "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ShortCut Rat Movements 2.0.vbs";
+        log.info("File Path on startup folder -> " + startupFilePath);
+
+        File startupFile = new File(startupFilePath);
+
+        if (startupFile.exists()) {
+            log.info("File already Exist on startup folder");
+            return true;
+        } else {
+            log.info("File does not Exist on startup folder");
+            return false;
+        }
     }
 
     //Obtain the image URL
