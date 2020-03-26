@@ -1,11 +1,13 @@
 package ratMovements;
 
-import com.sun.deploy.util.WinRegistry;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -40,6 +42,7 @@ public class TrayIconRM {
 
         try {
             tray.add(trayIcon);
+            trayIcon.displayMessage("Rat Movements 2.0", "Application is Running on System Tray!", TrayIcon.MessageType.NONE);
         } catch (AWTException e) {
             log.warn("TrayIcon could not be added.");
             return;
@@ -129,14 +132,14 @@ public class TrayIconRM {
                         runOnStartupItem.setState(true);
 
                         String xcopy = "cmd /c xcopy /Y " + shortCut + " " + startupUserFolder;
-                        log.info("XCOPY: -> " + xcopy);
+                        log.debug("XCOPY: -> " + xcopy);
                         r.exec(xcopy);
                         log.info("Rat Movements 2.0 added to startup folder by User");
                     } else {
                         runOnStartupItem.setState(false);
 
                         String del = "cmd /c del " + delFile;
-                        log.info("DEL: -> " + del);
+                        log.debug("DEL: -> " + del);
                         r.exec(del);
                         log.info("Rat Movements 2.0 removed from startup folder by User");
                     }
@@ -161,11 +164,13 @@ public class TrayIconRM {
                         MouseMoveOnScreen.getInstance().setServiceStarted(false);
                         tray.remove(trayIcon);
                         tray.add(trayIconPaused);
+                        trayIconPaused.displayMessage("Rat Movements 2.0", "Service Paused!", TrayIcon.MessageType.NONE);
                         log.info("Service stopped by User");
                     } else {
                         MouseMoveOnScreen.getInstance().setServiceStarted(true);
                         tray.remove(trayIconPaused);
                         tray.add(trayIcon);
+                        trayIcon.displayMessage("Rat Movements 2.0", "Service Resumed!", TrayIcon.MessageType.NONE);
                         log.info("Service resumed by User");
                     }
                 } catch (AWTException ex) {
